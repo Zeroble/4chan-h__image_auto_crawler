@@ -1,11 +1,15 @@
 import os
+from bs4 import BeautifulSoup
 import requests
 import urllib
 import shutil
-from bs4 import BeautifulSoup
+import threading
+import encodings.idna
 
 curPath = "./"
 aftPath = "./4chan-h/"
+baseURL = "http://boards.4chan.org/h/"
+complteCnt = 0
 
 def download_Image(ImageUrl, page):
     name = ImageUrl[15:]
@@ -27,27 +31,35 @@ def download_Image(ImageUrl, page):
     except:
         pass
 
+class four_chan_h(threading.Thread):
+    def __init__(self,page):
+        self.page = page
+        threading.Thread.__init__(self)
 
-baseURL = "http://boards.4chan.org/h/"
+    def run(self):
+        global baseURL
+        global complteCnt
+        if (self.page >= 2):
+            URL = baseURL + str(self.page)
+        else:
+            URL = baseURL
 
-for i in range(1, 11):
-    if (i >= 2):
-        URL = baseURL + str(i)
-    else:
-        URL = baseURL
+        req = requests.get(URL)
+        html = req.text
 
-    req = requests.get(URL)
-    html = req.text
+        soup = BeautifulSoup(html, "html.parser")
+        myUrls = soup.select('div.board > div.thread a.fileThumb')
+        print(URL)
+        for j in myUrls:
+            download_Image(j.get('href'),self.page)
+        print("{0} page download complete!\n".format(self.page))
+        complteCnt+=1
 
-    soup = BeautifulSoup(html, "html.parser")
-    myUrls = soup.select(
-        'div.board > div.thread a.fileThumb'
-    )
 
-    if not os.path.exists("4chan-h"):
+if not os.path.exists("4chan-h"):
         os.makedirs("4chan-h")
-    print(URL)
-    for j in myUrls:
-        download_Image(j.get('href'),i)
 
-print("download complete!")
+
+for i in range(1,11):
+    Thread = four_chan_h(i)
+    Thread.start()

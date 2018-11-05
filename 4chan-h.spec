@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['4chan-h.py'],
-             pathex=['C:\\Users\\dlals\\PycharmProjects\\4chan_h__ImagesAutoDownloader'],
+             pathex=['G:\\PycharmProjects\\4chan_h__ImagesAutoDownloader'],
              binaries=[],
              datas=[],
              hiddenimports=[],
